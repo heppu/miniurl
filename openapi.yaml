@@ -1,0 +1,67 @@
+openapi: 3.1.0
+info:
+  title: MiniURL
+  description: MiniURL is simple url shortener.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /url:
+     post:
+      summary: Shorten and store new url
+      description: Shorten and store new url
+      operationId: addUrl
+      requestBody:
+        description: Url that needs to be shortened
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUrl'
+      responses:
+        '200':
+          description: Url added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddedUrl'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    NewUrl:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          example: https://github.com/gourses/miniurl/blob/main/LICENSE
+    AddedUrl:
+      type: object
+      required:
+        - shortUrl
+        - originalUrl
+      properties:
+        shortUrl:
+          type: string
+          example: https://my-domain/sujU9j
+        originalUrl:
+          type: string
+          example: https://github.com/gourses/miniurl/blob/main/LICENSE
+    Error:
+      type: object
+      required:
+        - msg
+      properties:
+        msg:
+          type: string
