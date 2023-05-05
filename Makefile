@@ -1,0 +1,39 @@
+.DEFAULT_GOAL := help
+
+# Tool related definitions.
+GO_VERSION	:= 1.20.3
+TOOLS_DIR	:= .tools
+GO 			:= ${TOOLS_DIR}/go/go${GO_VERSION}
+
+${GO}: # Install required Go version
+	@GOBIN=${PWD}/$(dir ${GO}) go install -mod=readonly golang.org/dl/go${GO_VERSION}@latest
+	${GO} download
+
+.PHONY: help test benchmark fuzz build image go-version clean clean-tools
+
+help: ## Show help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<recipe>\033[0m\n\nRecipes:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+test: ${GO} ## Run tests
+	@echo TODO
+
+benchmark: ${GO} ## Run benchmarks
+	@echo TODO
+
+fuzz: ${GO} ## Run fuzzy tests
+	@echo TODO
+
+build: ${GO} ## Build binary
+	@echo TODO
+
+image: ## Build image
+	@echo TODO
+
+go-version: ## Print Go version
+	@echo ${GO_VERSION}
+
+clean: ## Remove all build and test artifacts
+	rm -r target
+
+clean-tools: ## Remove all tools
+	rm -r ${TOOLS_DIR}
