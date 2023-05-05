@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MiniURL</title>
+	<style>
+		body {
+			background-color: #00ffff;
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			color: #000000;
+		}
+
+		h1 {
+			font-size: 48px;
+			color: #ff00ff;
+			text-align: center;
+			margin-top: 50px;
+		}
+
+		form {
+			text-align: center;
+			margin-top: 50px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 10px;
+			font-size: 24px;
+			color: #0000ff;
+		}
+
+		input[type=text] {
+			padding: 10px;
+			font-size: 18px;
+			border: 2px solid #0000ff;
+			border-radius: 5px;
+			width: 500px;
+			margin-bottom: 20px;
+		}
+
+		input[type=submit] {
+			padding: 10px 20px;
+			font-size: 18px;
+			background-color: #0000ff;
+			color: #ffffff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		input[type=submit]:hover {
+			background-color: #ff00ff;
+		}
+
+		.shortened-url {
+			display: block;
+			margin-top: 50px;
+			font-size: 24px;
+			color: #0000ff;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<marquee><h3>The best URL shortener there is!!!</h3></marquee>
+	<h1>MiniURL</h1>
+	<form id="urlForm">
+		<label for="url">Enter your looooong URL:</label>
+		<input type="text" id="url" name="url" placeholder="https://www.example.com">
+		<input type="submit" value="Shorten URL">
+	</form>
+    <p id="urlContainer" class="shortened-url"></p>
+</body>
+<script>
+    let loginForm = document.getElementById("urlForm");
+
+    loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        fetch('/api/v1/url', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "url": document.getElementById("url").value })
+        })
+        .then(resp => resp.json())
+        .then(resp => {
+            console.log(JSON.stringify(resp))
+			document.getElementById('urlContainer').innerHTML = '<a target="_blank" href="/'+resp.hash+'">'+window.location.origin+'/'+resp.hash+'</a>';
+        })
+    });
+</script>
+</html>
