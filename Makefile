@@ -26,6 +26,9 @@ test: ${GO} ## Run tests
 	mkdir -p ${TARGET_DIR}
 	${GO} test -v -race -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
+integration-test: ${GO} ## Run tests
+	${GO} test -v -race -tags=integration -cover -coverprofile=${TARGET_DIR}/integration-cover.out -coverpkg=$(subst ${SPACE},${COMMA},$(shell ${GO} list ./...)) miniurl_integration_test.go
+
 benchmark: ${GO} ## Run benchmarks
 	${GO} test -run='^$$' -bench=. -benchmem ./...
 
