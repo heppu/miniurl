@@ -33,7 +33,7 @@ benchmark: ${GO} ## Run benchmarks
 	${GO} test -run='^$$' -bench=. -benchmem ./...
 
 fuzz: ${GO} ## Run fuzzy tests
-	@echo TODO
+	${GO} test -fuzz=.
 
 build: ${GO} ## Build binary
 	@echo TODO
