@@ -36,10 +36,10 @@ fuzz: ${GO} ## Run fuzzy tests
 	${GO} test -fuzz=.
 
 build: ${GO} ## Build binary
-	${GO} build -o ${TARGET_DIR}/miniurl ./cmd/miniurl
+	CGO_ENABLED=0 ${GO} build -o ${TARGET_DIR}/miniurl ./cmd/miniurl
 
 image: ## Build image
-	@echo TODO
+	docker build --rm -t miniurl .
 
 go-version: ## Print Go version
 	@echo ${GO_VERSION}
