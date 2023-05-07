@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 
 	"github.com/heppu/miniurl/api"
 	"github.com/heppu/miniurl/storage/mem"
@@ -30,6 +31,16 @@ func Run() error {
 
 	app := &App{storage: mem.NewStorage()}
 	srv := api.NewServer(addr, app)
+
+	closeCh := make(chan os.Signal, 1)
+	signal.Notify(closeCh, os.Interrupt)
+	go func() {
+		<-closeCh
+		slog.Info("Closing server")
+		if err := srv.Stop(); err != nil {
+			slog.Error(err.Error())
+		}
+	}()
 
 	slog.Info("Starting app", slog.String("LISTEN_ADDR", addr))
 	return srv.Start()
