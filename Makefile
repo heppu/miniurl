@@ -27,7 +27,7 @@ unit-test: ${GO} ## Run unit tests
 	${GO} test -v -race -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 integration-test: ${GO} ## Run integration tests
-	@echo TODO
+	${GO} test -v -race -tags=integration -cover -coverprofile=${TARGET_DIR}/integration-cover.out -coverpkg=$(subst ${SPACE},${COMMA},$(shell ${GO} list ./...)) miniurl_integration_test.go
 
 benchmark: ${GO} ## Run benchmarks
 	${GO} test -run='^$$' -bench=. -benchmem ./...
