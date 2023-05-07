@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -60,6 +61,24 @@ func TestAPI_AddUrl(t *testing.T) {
 			assert.JSONEq(t, tc.expectedResponse, string(body))
 		})
 	}
+}
+
+func TestAPI_Index(t *testing.T) {
+	const expectedStatusCode = http.StatusOK
+	expectedBody, err := os.ReadFile("../ui/index.html")
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rr := httptest.NewRecorder()
+
+	router := httprouter.New()
+	api.Bind(router, nil)
+	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, expectedStatusCode, rr.Result().StatusCode)
+	body, err := io.ReadAll(rr.Result().Body)
+	require.NoError(t, err)
+	assert.Equal(t, expectedBody, body)
 }
 
 type strHandler struct {
