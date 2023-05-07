@@ -26,7 +26,7 @@ func TestStorage_AddAndGet(t *testing.T) {
 func TestStorage_NotFound(t *testing.T) {
 	s := mem.NewStorage()
 	url, err := s.GetUrl("hash")
-	assert.Error(t, err)
+	assert.ErrorIs(t, err, mem.ErrUrlNotFound)
 	assert.Empty(t, url)
 }
 
@@ -41,7 +41,7 @@ func TestStorage_HashCollisionWithDifferentUrl(t *testing.T) {
 	err := s.AddUrl(url1, hash)
 	require.NoError(t, err)
 	err = s.AddUrl(url2, hash)
-	require.Error(t, err)
+	require.ErrorIs(t, err, mem.ErrHashCollision)
 }
 
 func TestStorage_HashCollisionWithSameUrl(t *testing.T) {

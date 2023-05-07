@@ -2,6 +2,11 @@ package mem
 
 import "errors"
 
+var (
+	ErrHashCollision = errors.New("hash collides with different url")
+	ErrUrlNotFound   = errors.New("url not found")
+)
+
 type Storage struct {
 	urls map[string]string
 }
@@ -15,7 +20,7 @@ func NewStorage() *Storage {
 func (s *Storage) AddUrl(url, hash string) error {
 	oldUrl, ok := s.urls[hash]
 	if ok && oldUrl != url {
-		return errors.New("hash collides with different url")
+		return ErrHashCollision
 	}
 
 	s.urls[hash] = url
@@ -25,7 +30,7 @@ func (s *Storage) AddUrl(url, hash string) error {
 func (s *Storage) GetUrl(hash string) (string, error) {
 	url, ok := s.urls[hash]
 	if !ok {
-		return "", errors.New("url not found")
+		return "", ErrUrlNotFound
 	}
 
 	return url, nil
