@@ -31,7 +31,7 @@ help: ## Show help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<recipe>\033[0m\n\nRecipes:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 test: ${GO} ## Run tests
-	@echo TODO
+	${GO} test -v ./...
 
 benchmark: ## Run benchmarks
 	@echo TODO
