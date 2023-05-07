@@ -81,14 +81,48 @@ func TestAPI_Index(t *testing.T) {
 	assert.Equal(t, expectedBody, body)
 }
 
+func TestAPI_Redirect(t *testing.T) {
+	const expectedBody = "hello from target server!"
+
+	targetSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte(expectedBody))
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(targetSrv.Close)
+
+	handler := urlHandler{url: targetSrv.URL}
+	router := httprouter.New()
+	api.Bind(router, handler)
+
+	apiSrv := httptest.NewServer(router)
+	t.Cleanup(apiSrv.Close)
+
+	resp, err := apiSrv.Client().Get(apiSrv.URL + "/some-hash")
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	assert.Equal(t, expectedBody, string(body))
+}
+
+type urlHandler struct {
+	url string
+	api.Handler
+}
+
+func (h urlHandler) GetUrl(string) (string, error) { return h.url, nil }
+
 type strHandler struct {
 	str string
+	api.Handler
 }
 
 func (h strHandler) AddUrl(string) (string, error) { return h.str, nil }
 
 type errHandler struct {
 	err error
+	api.Handler
 }
 
 func (h errHandler) AddUrl(string) (string, error) { return "", h.err }

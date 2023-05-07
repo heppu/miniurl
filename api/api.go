@@ -12,6 +12,7 @@ import (
 
 type Handler interface {
 	AddUrl(original string) (hash string, err error)
+	GetUrl(hash string) (url string, err error)
 }
 
 type API struct {
@@ -21,6 +22,7 @@ type API struct {
 func Bind(r *httprouter.Router, h Handler) {
 	a := &API{handler: h}
 	r.GET("/", a.Index)
+	r.GET("/:hash", a.Redirect)
 	r.POST("/api/v1/url", a.AddUrl)
 }
 
@@ -35,6 +37,17 @@ type AddUrlResp struct {
 
 type ErrorResp struct {
 	Msg string `json:"msg"`
+}
+
+func (a *API) Redirect(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	hash := p.ByName("hash")
+	url, err := a.handler.GetUrl(hash)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
 func (a *API) Index(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
