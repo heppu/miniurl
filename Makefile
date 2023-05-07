@@ -33,7 +33,7 @@ fuzz: ${GO} ## Run fuzzy tests
 	${GO} test -fuzz=. -fuzztime=20s
 
 build: ${GO} ## Build binary
-	@echo TODO
+	${GO} build -o ${TARGET_DIR}/miniurl ./cmd/miniurl
 
 image: ## Build image
 	@echo TODO
