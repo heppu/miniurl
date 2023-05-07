@@ -27,7 +27,7 @@ test: ${GO} ## Run tests
 	${GO} test -v -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 benchmark: ${GO} ## Run benchmarks
-	@echo TODO
+	${GO} test -run='^$$' -bench=. -benchmem ./...
 
 fuzz: ${GO} ## Run fuzzy tests
 	@echo TODO
