@@ -19,8 +19,12 @@ ${GO}: # Install required Go version
 help: ## Show help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<recipe>\033[0m\n\nRecipes:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
+tidy: ${GO} ## Tidy Go modules
+	${GO} mod tidy
+
 test: ${GO} ## Run tests
-	@echo TODO
+	mkdir -p ${TARGET_DIR}
+	${GO} test -v -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 benchmark: ${GO} ## Run benchmarks
 	@echo TODO
