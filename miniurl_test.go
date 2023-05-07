@@ -40,3 +40,14 @@ func BenchmarkHash(b *testing.B) {
 		miniurl.Hash(input)
 	}
 }
+
+func FuzzHash(f *testing.F) {
+	f.Add("some string")
+	f.Fuzz(func(t *testing.T, a string) {
+		h1 := miniurl.Hash(a)
+		h2 := miniurl.Hash(a)
+		assert.Equalf(t, h1, h2, "non deterministic result with input: %s", a)
+		assert.Lenf(t, h1, 32, "invalid length with input: %s", a)
+		assert.Lenf(t, h2, 32, "invalid length with input: %s", a)
+	})
+}
