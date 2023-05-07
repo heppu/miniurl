@@ -33,10 +33,10 @@ help: ## Show help
 test: ${GO} ## Run tests
 	${GO} test -v ./...
 
-benchmark: ## Run benchmarks
-	@echo TODO
+benchmark: ${GO} ## Run benchmarks
+	${GO} test -run='^$$' -bench=.
 
-fuzz: ## Run fuzzer
+fuzz: ${GO} ## Run fuzzer
 	@echo TODO
 
 lint: ${GOLANGCI_LINT} ## Lint code

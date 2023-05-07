@@ -33,3 +33,10 @@ func ExampleHash() {
 	// output:
 	// c04b9f2c60bbb4150abaf1f317d07fc1
 }
+
+func BenchmarkHash(b *testing.B) {
+	input := "https://github.com/heppu"
+	for n := 0; n < b.N; n++ {
+		miniurl.Hash(input)
+	}
+}
