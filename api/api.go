@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"net/http"
@@ -17,6 +18,29 @@ type Handler interface {
 
 type API struct {
 	handler Handler
+}
+
+type Server struct {
+	srv *http.Server
+}
+
+func NewServer(listenAddr string, h Handler) *Server {
+	r := httprouter.New()
+	Bind(r, h)
+	return &Server{
+		srv: &http.Server{
+			Addr:    listenAddr,
+			Handler: r,
+		},
+	}
+}
+
+func (s *Server) Start() error {
+	return s.srv.ListenAndServe()
+}
+
+func (s *Server) Stop() error {
+	return s.srv.Shutdown(context.Background())
 }
 
 func Bind(r *httprouter.Router, h Handler) {
