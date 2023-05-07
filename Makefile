@@ -1,9 +1,14 @@
 .DEFAULT_GOAL := help
 
-# Tool related definitions.
-GO_VERSION	:= 1.20.3
+# Common build variables
+TARGET_DIR	:= target
 TOOLS_DIR	:= .tools
+GO_VERSION	:= 1.20.3
 GO 			:= ${TOOLS_DIR}/go/go${GO_VERSION}
+
+# Variables for text transformations.
+COMMA := ,
+SPACE := $(subst ,, )
 
 ${GO}: # Install required Go version
 	@GOBIN=${PWD}/$(dir ${GO}) go install -mod=readonly golang.org/dl/go${GO_VERSION}@latest
