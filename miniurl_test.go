@@ -1,6 +1,7 @@
 package miniurl_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/heppu/miniurl"
@@ -23,4 +24,12 @@ func TestHashIsDeterministic(t *testing.T) {
 	h1 := miniurl.Hash(input)
 	h2 := miniurl.Hash(input)
 	assert.Equal(t, h1, h2)
+}
+
+func ExampleHash() {
+	originalUrl := "https://github.com/heppu"
+	hash := miniurl.Hash(originalUrl)
+	fmt.Println(hash)
+	// output:
+	// c04b9f2c60bbb4150abaf1f317d07fc1
 }
