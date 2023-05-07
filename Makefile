@@ -37,7 +37,7 @@ benchmark: ${GO} ## Run benchmarks
 	${GO} test -run='^$$' -bench=.
 
 fuzz: ${GO} ## Run fuzzer
-	@echo TODO
+	${GO} test -run=.
 
 lint: ${GOLANGCI_LINT} ## Lint code
 	@echo TODO
