@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/heppu/miniurl/ui"
@@ -36,7 +37,12 @@ func NewServer(listenAddr string, h Handler) *Server {
 }
 
 func (s *Server) Start() error {
-	return s.srv.ListenAndServe()
+	err := s.srv.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+
+	return err
 }
 
 func (s *Server) Stop() error {
