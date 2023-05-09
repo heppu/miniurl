@@ -1,6 +1,9 @@
 package mem
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 var (
 	ErrHashCollision = errors.New("hash collides with different url")
@@ -8,7 +11,8 @@ var (
 )
 
 type Storage struct {
-	urls map[string]string
+	urlsMu sync.RWMutex
+	urls   map[string]string
 }
 
 func NewStorage() *Storage {
@@ -18,6 +22,9 @@ func NewStorage() *Storage {
 }
 
 func (s *Storage) AddUrl(url, hash string) error {
+	s.urlsMu.Lock()
+	defer s.urlsMu.Unlock()
+
 	oldUrl, ok := s.urls[hash]
 	if ok && oldUrl != url {
 		return ErrHashCollision
@@ -28,6 +35,9 @@ func (s *Storage) AddUrl(url, hash string) error {
 }
 
 func (s *Storage) GetUrl(hash string) (string, error) {
+	s.urlsMu.RLock()
+	defer s.urlsMu.RUnlock()
+
 	url, ok := s.urls[hash]
 	if !ok {
 		return "", ErrUrlNotFound
