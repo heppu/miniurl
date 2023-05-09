@@ -11,7 +11,7 @@ import (
 
 	"github.com/heppu/miniurl/api"
 	"github.com/heppu/miniurl/storage"
-	"github.com/heppu/miniurl/storage/mem"
+	"github.com/heppu/miniurl/storage/postgres"
 	"golang.org/x/exp/slog"
 )
 
@@ -30,7 +30,17 @@ func Run() error {
 		addr = ":8080"
 	}
 
-	app := &App{storage: mem.NewStorage()}
+	connStr := os.Getenv("CONN_STR")
+	if connStr == "" {
+		connStr = "postgres://root:root@localhost:5432/root?sslmode=disable"
+	}
+
+	ps, err := postgres.NewStorage(connStr)
+	if err != nil {
+		return fmt.Errorf("failed to create postgres storage: %w", err)
+	}
+
+	app := &App{storage: ps}
 	srv := api.NewServer(addr, app)
 
 	closeCh := make(chan os.Signal, 1)

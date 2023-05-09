@@ -87,7 +87,7 @@
         .then(resp => resp.json())
         .then(resp => {
             console.log(JSON.stringify(resp))
-			document.getElementById('urlContainer').innerHTML = '<a href="/'+resp.hash+'">'+window.location.origin+'/'+resp.hash+'</a>';
+			document.getElementById('urlContainer').innerHTML = '<a target="_blank" href="/'+resp.hash+'">'+window.location.origin+'/'+resp.hash+'</a>';
         })
     });
 </script>
