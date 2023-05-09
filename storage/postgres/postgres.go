@@ -6,12 +6,8 @@ import (
 	"fmt"
 
 	"github.com/go-gorp/gorp/v3"
+	"github.com/heppu/miniurl/storage"
 	"github.com/lib/pq"
-)
-
-var (
-	ErrHashCollision = errors.New("hash collides with different url")
-	ErrUrlNotFound   = errors.New("url not found")
 )
 
 type record struct {
@@ -54,7 +50,7 @@ func (s *Storage) AddUrl(url, hash string) error {
 	}
 
 	if oldUrl != url {
-		return ErrHashCollision
+		return storage.ErrHashCollision
 	}
 
 	return nil
@@ -66,7 +62,7 @@ func (s *Storage) GetUrl(hash string) (string, error) {
 		return "", err
 	}
 	if url == "" {
-		return "", ErrUrlNotFound
+		return "", storage.ErrUrlNotFound
 	}
 
 	return url, nil
