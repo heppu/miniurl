@@ -41,3 +41,19 @@ func BenchmarkHash(b *testing.B) {
 		miniurl.Hash(input)
 	}
 }
+
+func FuzzHash(f *testing.F) {
+	const (
+		input          = "https://github.com/heppu"
+		expectedLength = 32
+	)
+
+	f.Add("some string")
+	f.Fuzz(func(t *testing.T, a string) {
+		h1 := miniurl.Hash(input)
+		h2 := miniurl.Hash(input)
+		assert.Equal(t, h1, h2)
+		assert.Len(t, h1, expectedLength)
+		assert.Len(t, h2, expectedLength)
+	})
+}
