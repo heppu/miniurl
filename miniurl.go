@@ -10,6 +10,7 @@ import (
 	"os/signal"
 
 	"github.com/heppu/miniurl/api"
+	"github.com/heppu/miniurl/storage"
 	"github.com/heppu/miniurl/storage/mem"
 	"golang.org/x/exp/slog"
 )
@@ -54,7 +55,7 @@ func (a *App) AddUrl(url string) (string, error) {
 		switch {
 		case err == nil:
 			return hash, nil
-		case !errors.Is(err, mem.ErrHashCollision):
+		case !errors.Is(err, storage.ErrHashCollision):
 			return "", fmt.Errorf("failed to store url: %w", err)
 		default:
 			seed = hash

@@ -1,13 +1,9 @@
 package mem
 
 import (
-	"errors"
 	"sync"
-)
 
-var (
-	ErrHashCollision = errors.New("hash collides with different url")
-	ErrUrlNotFound   = errors.New("url not found")
+	"github.com/heppu/miniurl/storage"
 )
 
 type Storage struct {
@@ -27,7 +23,7 @@ func (s *Storage) AddUrl(url, hash string) error {
 
 	oldUrl, ok := s.urls[hash]
 	if ok && oldUrl != url {
-		return ErrHashCollision
+		return storage.ErrHashCollision
 	}
 
 	s.urls[hash] = url
@@ -40,7 +36,7 @@ func (s *Storage) GetUrl(hash string) (string, error) {
 
 	url, ok := s.urls[hash]
 	if !ok {
-		return "", ErrUrlNotFound
+		return "", storage.ErrUrlNotFound
 	}
 
 	return url, nil

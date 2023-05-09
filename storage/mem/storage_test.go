@@ -4,6 +4,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/heppu/miniurl/storage"
 	"github.com/heppu/miniurl/storage/mem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,7 +28,7 @@ func TestStorage_AddAndGet(t *testing.T) {
 func TestStorage_NotFound(t *testing.T) {
 	s := mem.NewStorage()
 	url, err := s.GetUrl("hash")
-	assert.ErrorIs(t, err, mem.ErrUrlNotFound)
+	assert.ErrorIs(t, err, storage.ErrUrlNotFound)
 	assert.Empty(t, url)
 }
 
@@ -42,7 +43,7 @@ func TestStorage_HashCollisionWithDifferentUrl(t *testing.T) {
 	err := s.AddUrl(url1, hash)
 	require.NoError(t, err)
 	err = s.AddUrl(url2, hash)
-	require.ErrorIs(t, err, mem.ErrHashCollision)
+	require.ErrorIs(t, err, storage.ErrHashCollision)
 }
 
 func TestStorage_HashCollisionWithSameUrl(t *testing.T) {
