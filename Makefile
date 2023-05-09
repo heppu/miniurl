@@ -23,22 +23,23 @@ tidy: ${GO} ## Tidy Go modules
 	${GO} mod tidy
 
 unit-test: ${GO} ## Run unit tests
-	@echo TODO
+	mkdir -p ${TARGET_DIR}
+	${GO} test -v -race -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 integration-test: ${GO} ## Run integration tests
-	@echo TODO
+	${GO} test -v -race -tags=integration -cover -coverprofile=${TARGET_DIR}/integration-cover.out -coverpkg=$(subst ${SPACE},${COMMA},$(shell ${GO} list ./...)) miniurl_integration_test.go
 
 benchmark: ${GO} ## Run benchmarks
-	@echo TODO
+	${GO} test -run='^$$' -bench=. -benchmem ./...
 
 fuzz: ${GO} ## Run fuzzy tests
-	@echo TODO
+	${GO} test -fuzz=.
 
 build: ${GO} ## Build binary
-	@echo TODO
+	CGO_ENABLED=0 ${GO} build -o ${TARGET_DIR}/miniurl ./cmd/miniurl
 
 image: ## Build image
-	@echo TODO
+	docker build --rm -t miniurl .
 
 go-version: ## Print Go version
 	@echo ${GO_VERSION}
