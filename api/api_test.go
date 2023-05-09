@@ -14,7 +14,6 @@ import (
 )
 
 func TestAPI_AddUrl(t *testing.T) {
-	t.Skip()
 	const (
 		payload            = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`
 		expectedBody       = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE", "hash": "testvalue"}`
@@ -25,7 +24,8 @@ func TestAPI_AddUrl(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	r := httprouter.New()
-	api.Bind(r, nil)
+	h := strHandler{str: "testvalue"}
+	api.Bind(r, h)
 	r.ServeHTTP(rr, req)
 
 	assert.Equal(t, expectedStatusCode, rr.Result().StatusCode)
@@ -33,3 +33,9 @@ func TestAPI_AddUrl(t *testing.T) {
 	require.NoError(t, err)
 	assert.JSONEq(t, expectedBody, string(body))
 }
+
+type strHandler struct {
+	str string
+}
+
+func (h strHandler) AddUrl(string) (string, error) { return h.str, nil }
