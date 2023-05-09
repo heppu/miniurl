@@ -1,6 +1,7 @@
 package mem_test
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/heppu/miniurl/storage/mem"
@@ -55,4 +56,31 @@ func TestStorage_HashCollisionWithSameUrl(t *testing.T) {
 	require.NoError(t, err)
 	err = s.AddUrl(url, hash)
 	require.NoError(t, err)
+}
+
+func TestStorage_Parallel_AddAndGet(t *testing.T) {
+	data := map[string]string{
+		"hash-a": "url-a",
+		"hash-b": "url-b",
+		"hash-c": "url-c",
+	}
+
+	s := mem.NewStorage()
+	wg := sync.WaitGroup{}
+	for hash, url := range data {
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go func(url, hash string) {
+				defer wg.Done()
+
+				err := s.AddUrl(url, hash)
+				require.NoError(t, err)
+				gotUrl, err := s.GetUrl(hash)
+				assert.NoError(t, err)
+				assert.Equal(t, url, gotUrl)
+			}(url, hash)
+		}
+	}
+
+	wg.Wait()
 }

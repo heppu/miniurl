@@ -24,7 +24,7 @@ tidy: ${GO} ## Tidy Go modules
 
 unit-test: ${GO} ## Run unit tests
 	mkdir -p ${TARGET_DIR}
-	${GO} test -v -cover -coverprofile=${TARGET_DIR}/cover.out ./...
+	${GO} test -v -race -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 integration-test: ${GO} ## Run integration tests
 	@echo TODO
