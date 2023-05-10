@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -64,6 +65,7 @@ func TestAPI_AddUrl(t *testing.T) {
 
 type strHandler struct {
 	str string
+	api.Handler
 }
 
 func (h *strHandler) AddUrl(url string) (hash string, err error) {
@@ -72,8 +74,39 @@ func (h *strHandler) AddUrl(url string) (hash string, err error) {
 
 type errHandler struct {
 	err error
+	api.Handler
 }
 
 func (h *errHandler) AddUrl(url string) (hash string, err error) {
 	return "", h.err
+}
+
+func TestAPI_Redirect(t *testing.T) {
+	const expectedBody = "hello from target"
+	targetSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, expectedBody)
+	}))
+	t.Cleanup(targetSrv.Close)
+
+	h := &urlHandler{url: targetSrv.URL}
+	r := httprouter.New()
+	api.Bind(r, h)
+
+	apiSrv := httptest.NewServer(r)
+	t.Cleanup(apiSrv.Close)
+
+	resp, err := apiSrv.Client().Get(apiSrv.URL + "/myhash")
+	require.NoError(t, err)
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	assert.Equal(t, expectedBody, string(body))
+}
+
+type urlHandler struct {
+	url string
+	api.Handler
+}
+
+func (h *urlHandler) GetUrl(hash string) (url string, err error) {
+	return h.url, nil
 }
