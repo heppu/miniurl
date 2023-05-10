@@ -33,3 +33,10 @@ func ExampleHash() {
 	// output:
 	// 0e9feff05a0b479538a45ca1eaeebd23
 }
+
+func BenchmarkHash(b *testing.B) {
+	const input = "https://github.com/heppu/miniurl"
+	for n := 0; n < b.N; n++ {
+		miniurl.Hash(input)
+	}
+}
