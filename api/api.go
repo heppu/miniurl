@@ -30,22 +30,33 @@ type AddUrlResp struct {
 	Hash string `json:"hash"`
 }
 
+type ErrorResp struct {
+	Msg string `json:"msg"`
+}
+
 func (a *API) PostUrlHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var req AddUrlReq
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		// TODO
+		resp := ErrorResp{Msg: "bad request"}
+		respondJSON(w, http.StatusBadRequest, resp)
 		return
 	}
 
 	hash, err := a.handler.AddUrl(req.Url)
 	if err != nil {
-		// TODO
+		resp := ErrorResp{Msg: "internal server error"}
+		respondJSON(w, http.StatusInternalServerError, resp)
 		return
 	}
 
 	resp := AddUrlResp{Url: req.Url, Hash: hash}
-	err = json.NewEncoder(w).Encode(resp)
+	respondJSON(w, http.StatusOK, resp)
+}
+
+func respondJSON(w http.ResponseWriter, code int, resp any) {
+	w.WriteHeader(code)
+	err := json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		slog.Error(err.Error())
 	}

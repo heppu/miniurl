@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,24 +15,51 @@ import (
 )
 
 func TestAPI_AddUrl(t *testing.T) {
-	const (
-		payload            = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`
-		expectedStatusCode = http.StatusOK
-		expectedBody       = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE", "hash":"testvalue"}`
-	)
+	tests := []struct {
+		name               string
+		payload            string
+		handler            api.Handler
+		expectedStatusCode int
+		expectedBody       string
+	}{
+		{
+			name:               "OK",
+			payload:            `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`,
+			handler:            &strHandler{str: "testvalue"},
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE", "hash":"testvalue"}`,
+		},
+		{
+			name:               "invalid payload",
+			payload:            `invalid json`,
+			handler:            nil,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedBody:       `{"msg": "bad request"}`,
+		},
+		{
+			name:               "handler error",
+			payload:            `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`,
+			handler:            &errHandler{err: errors.New("handler error")},
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedBody:       `{"msg": "internal server error"}`,
+		},
+	}
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/url", strings.NewReader(payload))
-	rr := httptest.NewRecorder()
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/url", strings.NewReader(tc.payload))
+			rr := httptest.NewRecorder()
 
-	r := httprouter.New()
-	h := &strHandler{str: "testvalue"}
-	api.Bind(r, h)
-	r.ServeHTTP(rr, req)
+			r := httprouter.New()
+			api.Bind(r, tc.handler)
+			r.ServeHTTP(rr, req)
 
-	assert.Equal(t, expectedStatusCode, rr.Result().StatusCode)
-	body, err := io.ReadAll(rr.Result().Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, expectedBody, string(body))
+			assert.Equal(t, tc.expectedStatusCode, rr.Result().StatusCode)
+			body, err := io.ReadAll(rr.Result().Body)
+			require.NoError(t, err)
+			assert.JSONEq(t, tc.expectedBody, string(body))
+		})
+	}
 }
 
 type strHandler struct {
@@ -40,4 +68,12 @@ type strHandler struct {
 
 func (h *strHandler) AddUrl(url string) (hash string, err error) {
 	return h.str, nil
+}
+
+type errHandler struct {
+	err error
+}
+
+func (h *errHandler) AddUrl(url string) (hash string, err error) {
+	return "", h.err
 }
