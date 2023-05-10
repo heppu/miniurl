@@ -23,7 +23,7 @@ tidy: ${GO} ## Tidy Go modules
 	${GO} mod tidy
 
 unit-test: ${GO} ## Run unit tests
-	@echo TODO
+	${GO} test -v ./...
 
 integration-test: ${GO} ## Run integration tests
 	@echo TODO
