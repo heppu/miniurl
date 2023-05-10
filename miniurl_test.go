@@ -41,3 +41,13 @@ func BenchmarkHash(b *testing.B) {
 		miniurl.Hash(input)
 	}
 }
+
+func FuzzHash(f *testing.F) {
+	f.Add("some string")
+
+	f.Fuzz(func(t *testing.T, a string) {
+		output1 := miniurl.Hash(a)
+		output2 := miniurl.Hash(a)
+		assert.Equal(t, output1, output2)
+	})
+}
