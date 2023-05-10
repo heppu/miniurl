@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -8,6 +9,29 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/slog"
 )
+
+type Server struct {
+	srv *http.Server
+}
+
+func NewServer(listenAddr string, h Handler) *Server {
+	r := httprouter.New()
+	Bind(r, h)
+	return &Server{
+		srv: &http.Server{
+			Addr:    listenAddr,
+			Handler: r,
+		},
+	}
+}
+
+func (s *Server) Start() error {
+	return s.srv.ListenAndServe()
+}
+
+func (s *Server) Stop() error {
+	return s.srv.Shutdown(context.Background())
+}
 
 type Handler interface {
 	AddUrl(url string) (hash string, err error)
