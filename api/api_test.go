@@ -14,24 +14,44 @@ import (
 )
 
 func TestAPI_AddUrl(t *testing.T) {
-	const (
-		payload            = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`
-		expectedBody       = `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE", "hash": "testvalue"}`
-		expectedStatusCode = http.StatusOK
-	)
+	tests := []struct {
+		name               string
+		handler            api.Handler
+		payload            string
+		expectedStatusCode int
+		expectedBody       string
+	}{
+		{
+			name:               "OK",
+			handler:            &strHandler{str: "testvalue"},
+			payload:            `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE"}`,
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       `{"url": "https://github.com/gourses/miniurl/blob/main/LICENSE", "hash": "testvalue"}`,
+		},
+		{
+			name:               "bad request",
+			handler:            nil,
+			payload:            `invalid json data`,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedBody:       `{"msg": "bad request"}`,
+		},
+	}
 
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/url", strings.NewReader(payload))
-	rr := httptest.NewRecorder()
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/url", strings.NewReader(tc.payload))
+			rr := httptest.NewRecorder()
 
-	r := httprouter.New()
-	h := &strHandler{str: "testvalue"}
-	api.Bind(r, h)
-	r.ServeHTTP(rr, req)
+			r := httprouter.New()
+			api.Bind(r, tc.handler)
+			r.ServeHTTP(rr, req)
 
-	assert.Equal(t, expectedStatusCode, rr.Result().StatusCode)
-	body, err := io.ReadAll(rr.Result().Body)
-	require.NoError(t, err)
-	assert.JSONEq(t, expectedBody, string(body))
+			assert.Equal(t, tc.expectedStatusCode, rr.Result().StatusCode)
+			body, err := io.ReadAll(rr.Result().Body)
+			require.NoError(t, err)
+			assert.JSONEq(t, tc.expectedBody, string(body))
+		})
+	}
 }
 
 type strHandler struct {
