@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/heppu/miniurl/ui"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/slog"
 )
@@ -18,7 +19,15 @@ type API struct {
 
 func Bind(r *httprouter.Router, h Handler) {
 	a := &API{handler: h}
+	r.GET("/", a.IndexHandler)
 	r.POST("/api/v1/url", a.PostUrlHandler)
+}
+
+func (a *API) IndexHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	_, err := w.Write(ui.Index)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 }
 
 type AddUrlReq struct {
