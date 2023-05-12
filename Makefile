@@ -23,16 +23,17 @@ tidy: ${GO} ## Tidy Go modules
 	${GO} mod tidy
 
 unit-test: ${GO} ## Run unit tests
-	@echo TODO
+	mkdir -p ${TARGET_DIR}
+	${GO} test -v -cover -coverprofile=${TARGET_DIR}/cover.out ./...
 
 integration-test: ${GO} ## Run integration tests
 	@echo TODO
 
 benchmark: ${GO} ## Run benchmarks
-	@echo TODO
+	${GO} test -bench=. -benchmem ./...
 
 fuzz: ${GO} ## Run fuzzy tests
-	@echo TODO
+	${GO} test -fuzz=. ./...
 
 build: ${GO} ## Build binary
 	@echo TODO
