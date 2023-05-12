@@ -1,0 +1,53 @@
+package miniurl_test
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/heppu/miniurl"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestHashLength(t *testing.T) {
+	const (
+		input          = "https://github.com/heppu/miniurl"
+		expectedLength = 32
+	)
+
+	output := miniurl.Hash(input)
+	assert.Len(t, output, expectedLength)
+}
+
+func TestHashIsDeterministic(t *testing.T) {
+	const input = "https://github.com/heppu/miniurl"
+
+	output1 := miniurl.Hash(input)
+	output2 := miniurl.Hash(input)
+	assert.Equal(t, output1, output2)
+}
+
+func ExampleHash() {
+	const input = "https://github.com/heppu/miniurl"
+	output := miniurl.Hash(input)
+	fmt.Println(output)
+	// output:
+	// 0e9feff05a0b479538a45ca1eaeebd23
+}
+
+func BenchmarkHash(b *testing.B) {
+	const input = "https://github.com/heppu/miniurl"
+	for n := 0; n < b.N; n++ {
+		miniurl.Hash(input)
+	}
+}
+
+func FuzzHash(f *testing.F) {
+	f.Add("some string")
+	f.Fuzz(func(t *testing.T, input string) {
+		output1 := miniurl.Hash(input)
+		output2 := miniurl.Hash(input)
+		assert.Equal(t, output1, output2)
+		assert.Len(t, output1, 32)
+		assert.Len(t, output2, 32)
+	})
+}
